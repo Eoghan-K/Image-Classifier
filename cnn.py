@@ -13,6 +13,7 @@ from keras.layers import Conv2D
 from keras.layers import MaxPooling2D
 from keras.layers import Flatten
 from keras.layers import Dense
+from keras.layers import Dropout
 from keras.preprocessing.image import ImageDataGenerator
 from keras.datasets import cifar10
 from keras.utils import np_utils
@@ -27,14 +28,16 @@ classifier = Sequential()
 
 # Adding a first convolutional layer
 classifier.add(Conv2D(32, (3, 3), input_shape = (32, 32, 3), activation = 'relu'))
+classifier.add(Conv2D(32, (3, 3), activation = 'relu'))
 classifier.add(MaxPooling2D(pool_size = (2, 2)))
+
 
 # Adding a second convolutional layer
 classifier.add(Conv2D(64, (3, 3), activation = 'relu'))
 classifier.add(MaxPooling2D(pool_size = (2, 2)))
 
 # Adding a third convolutional layer
-classifier.add(Conv2D(64, (3, 3), activation = 'relu'))
+classifier.add(Conv2D(128, (3, 3), activation = 'relu'))
 classifier.add(MaxPooling2D(pool_size = (2, 2)))
 
 # Step 3 - Flattening
@@ -42,6 +45,7 @@ classifier.add(Flatten())
 
 # Step 4 - Full Connection
 classifier.add(Dense(units = 512, activation = 'relu'))
+classifier.add(Dropout(rate = 0.1))
 classifier.add(Dense(units = 10, activation = 'softmax'))
 
 # Compiling the CNN
@@ -74,21 +78,21 @@ datagen = ImageDataGenerator(
 datagen.fit(x_train)
 
 # fits the model on batches with real-time data augmentation:
-classifier.fit_generator(datagen.flow(x_train, y_train, batch_size=100),
-                    steps_per_epoch=len(x_train)/100,
+classifier.fit_generator(datagen.flow(x_train, y_train, batch_size=200),
+                    steps_per_epoch=len(x_train)/200,
                     epochs=25,
                     validation_data = (x_test, y_test),
                     workers = 4)
 
 # Make a single prediction
-test_image = image.load_img('dog.jpg', target_size = (32, 32))
+test_image = image.load_img('test_images/plane.jpg', target_size = (32, 32))
 test_image = image.img_to_array(test_image)
 test_image = np.expand_dims(test_image, axis = 0)
 test_image /= 255
 result = classifier.predict(test_image)
 
 # Save model
-classifier.save('model2.h5') 
+classifier.save('model5.h5') 
 
 # Load model
-classifier = load_model('model2.h5')
+classifier = load_model('model4.h5')
